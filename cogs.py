@@ -12,15 +12,17 @@ print('Connecting...')
 print(headset.headset_id)
 print(headset.status)
 
-# disconnect handler
-def disco(headset):
-    print('Headset disconnected')
-#headset.disconnected_handlers(disco)
+def smooth_avg (arr):
+    points = arr[-5:]
+    return (sum(points))/5
 
-# blink detection handler
-def on_blink(headset, blink_strength):
-    print("Blink detected. Strength: %s") % (blink_strength)
-headset.blink_handlers.append(on_blink)
+def smooth_weighted_avg (arr):
+    points = arr[-5:]
+    points[2] = 2 * points[2]
+    points[3] = 3 * points[3]
+    points[4] = 3 * points[4]
+    return (sum(points))/10
+
 
 #while headset.status != 'connected':
 #   time.sleep(0.5)
@@ -31,33 +33,28 @@ headset.blink_handlers.append(on_blink)
 # get current signal reading, 0 being the best and 255 being the worst
 print('Signal level: %s') % (headset.poor_signal)
 
-# get current attention level once a second for 10 seconds
-print("Measuring attention level in 5 seconds, concentrate")
+# get current attention and meditation levels once a second for 20 seconds
+print("Measuring attention and meditation levels in 5 seconds, concentrate")
 time.sleep(5)
-for x in range(10):
+att = []
+med = []
+att_avg = []
+att_weighted_avg = []
+for i in range(20): # while headset.poor_signal < 255:
     print("Current Attention: %s, Current Meditation: %s") % (headset.attention, headset.meditation)
+    att.append(headset.attention)
+    med.append(headset.meditation)
+    if len(att) < 5:
+        continue
+    att_avg.append(smooth_avg(att))
+    att_w_avg.append(smooth_weighted_avg(att))
     time.sleep(1)
-
-# get meditation level once a second for 10 seconds
-#print('Measuring meditation level in 5 seconds, calm')
-#time.sleep(5)
-#for x in range(10):
-    #print("current meditation: %s") % (headset.meditation)
-    #time.sleep(1)
-
-#print('Measuring blink, try to blink until we read 10 blinks')
-#blinkNum = 0
-#while blinkNum != 10:
-#   if on_blink == True:
-#       blinkNum = blinkNum + 1
 
 # 'None' expected
 print('Headset Status: %s') % (headset.status)
 
-
 #while headset.status is None:
-#   print('Headset not connected, attempting to reconnect..')
-    
+#   print('Headset not connected, attempting to reconnect..')  
 #   if headset.status == 'connected':
 #       print('Headset connected')
 #   elif headset.status == 'scanning':
