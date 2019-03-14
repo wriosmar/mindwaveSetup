@@ -1,7 +1,11 @@
 import mindwave, time
 import numpy
+import serial
+import struct
 
 headset = mindwave.Headset('/dev/tty.MindWaveMobile-SerialPo')
+port = '/dev/tty.usbmodem144101'
+arduino = serial.Serial(port, 9600, timeout = 1)
 time.sleep(2)
 
 print('Connecting...')
@@ -12,6 +16,8 @@ print('Connecting...')
 # 'None' expected
 print(headset.headset_id)
 print(headset.status)
+
+
 
 def smooth_avg (arr):
     points = arr[-5:]
@@ -100,10 +106,15 @@ for i in range(100): # while headset.poor_signal < 255:
     att.append(headset.attention)
     med.append(headset.meditation)
     if len(att) < 5:
-        continue
+       continue
     att_avg.append(smooth_avg(att))
-    att_w_avg.append(smooth_weighted_avg(att))
+    att_weighted_avg.append(smooth_weighted_avg(att))
+    print("attention: %s" ) % (headset.attention)
+    data = arduino.write(struct.pack('>B', headset.attention))
+    print(headset.poor_signal)
     time.sleep(1)
+
+
 
 # 'None' expected
 print('Headset Status: %s') % (headset.status)
